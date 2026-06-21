@@ -61,6 +61,10 @@ nvcc -o qxbin_cuda qxbin_cuda.cu -arch=sm_80   # change to your GPU arch
 ./qxbin_cuda
 ```
 
+## CI Status
+
+[![CI](https://github.com/pikk-qxbin/qxbin-cuda/actions/workflows/ci.yml/badge.svg)](https://github.com/pikk-qxbin/qxbin-cuda/actions/workflows/ci.yml)
+
 ## Installation Notes
 
 - **CuPy**: `pip install cupy-cuda12x` (or matching your CUDA toolkit)

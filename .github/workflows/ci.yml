@@ -1,0 +1,56 @@
+name: CI - Build & Test QxBin CUDA Bindings
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pybind11 numpy
+
+    - name: Build the native bindings
+      run: |
+        python setup.py build_ext --inplace
+
+    - name: Test import and basic functionality
+      run: |
+        python -c "
+        from qxbin_cuda import QxBinNative
+        qx = QxBinNative(num_cubits=128, grid_size=6)
+        print('Import successful:', qx)
+        result = qx.evolve_chains()
+        print('evolve_chains() returned shape:', result.shape)
+        print('Test passed!')
+        "
+
+    - name: Quick optimization test
+      run: |
+        python -c "
+        from qxbin_cuda import QxBinNative
+        qx = QxBinNative(num_cubits=256, grid_size=6)
+        qx.optimize_to_target(target_mean=0.65, max_steps=30)
+        print('Optimization loop completed successfully')
+        "
